@@ -1,0 +1,68 @@
+hostname R1
+
+! Security Configuration
+service password-encryption
+security passwords min-length 10
+login block-for 180 attempts 4 within 120
+
+enable secret <encrypted>
+
+username Admin1 secret <encrypted>
+
+banner motd ^CUnauthorized access is strictly prohibited^C
+
+no ip domain-lookup
+ip domain-name CCNA-lab.com
+
+! Enable IPv6 Routing
+ipv6 unicast-routing
+
+! Interfaces Configuration
+interface GigabitEthernet0/0
+ description Staff Network
+ ip address 192.168.0.1 255.255.255.128
+ ipv6 address FE80::1 link-local
+ ipv6 address 2001:DB8:ACAD::1/64
+ no shutdown
+
+interface GigabitEthernet0/1
+ description Sales Network
+ ip address 192.168.0.129 255.255.255.192
+ ipv6 address FE80::1 link-local
+ ipv6 address 2001:DB8:ACAD:1::1/64
+ no shutdown
+
+interface GigabitEthernet0/2
+ description IT Network
+ ip address 192.168.0.193 255.255.255.224
+ ipv6 address FE80::1 link-local
+ ipv6 address 2001:DB8:ACAD:2::1/64
+ no shutdown
+
+interface Serial0/0/1
+ description WAN Link to Central
+ ip address 172.16.1.2 255.255.255.252
+ ipv6 address FE80::1 link-local
+ ipv6 address 2001:DB8:2::1/64
+ no shutdown
+
+! Default Routes
+ip route 0.0.0.0 0.0.0.0 172.16.1.1
+ipv6 route ::/0 2001:DB8:2::2
+
+! Console Access
+line con 0
+ exec-timeout 5 0
+ password <encrypted>
+ login
+
+! VTY (SSH Access)
+line vty 0 4
+ exec-timeout 5 0
+ login local
+ transport input ssh
+
+line vty 5 15
+ exec-timeout 5 0
+ login local
+ transport input ssh
